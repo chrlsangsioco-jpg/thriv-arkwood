@@ -1,5 +1,5 @@
-// The public landing page rendered from LandingContent. Kept in sync with the
-// ThrivBOT editor's preview component so "what you edit" = "what visitors see".
+// Artisan Atelier — the public landing page rendered from LandingContent.
+// Pure server component, CSS-only motion. Accent is per-site (--accent var).
 import type { LandingContent } from '@/lib/content'
 
 export interface Testimonial {
@@ -11,24 +11,6 @@ export interface Testimonial {
   avatar_url?: string | null
 }
 
-const PALETTE = {
-  bg: '#F7F2EA',
-  surface: '#FBF8F2',
-  text: '#2B2420',
-  muted: '#8A7B68',
-  border: '#E7DCC9',
-}
-
-function Stars({ n = 5, color }: { n?: number; color: string }) {
-  return (
-    <div className="flex gap-0.5" style={{ color }}>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <span key={i} style={{ opacity: i < n ? 1 : 0.25 }}>★</span>
-      ))}
-    </div>
-  )
-}
-
 export function SiteRenderer({
   content,
   testimonials = [],
@@ -38,162 +20,160 @@ export function SiteRenderer({
 }) {
   const a = content.theme?.accent || '#A47551'
   const { business: b, hero, promo, services, about, gallery, process, contact } = content
+  const stripWords = services.items.slice(0, 4).map((s) => s.title)
 
   return (
-    <div style={{ background: PALETTE.bg, color: PALETTE.text }} className="min-h-screen font-sans">
-      {/* Promo banner */}
+    <div className="grain" style={{ ['--accent']: a } as React.CSSProperties}>
+      {/* promo */}
       {promo?.active && promo.text && (
-        <div className="px-4 py-2 text-center text-sm font-medium text-white" style={{ background: a }}>
+        <div style={{ background: 'var(--accent)' }} className="px-4 py-2 text-center text-sm font-medium text-white">
           {promo.text}
           {promo.code && <span className="ml-2 rounded bg-white/20 px-2 py-0.5 font-semibold">{promo.code}</span>}
         </div>
       )}
 
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-5 md:px-12">
-        <div className="flex items-center gap-2">
-          {b.logoUrl ? (
-            <img src={b.logoUrl} alt={b.name} className="h-8 w-auto" />
-          ) : (
-            <span className="font-serif text-xl font-semibold tracking-tight">{b.name}</span>
-          )}
+      {/* header */}
+      <header className="hd">
+        <div className="wrap hd-in">
+          <div className="brand">{b.name}</div>
+          <nav className="nav">
+            <a href="#services">Services</a>
+            <a href="#work">Work</a>
+            <a href="#process">Process</a>
+            <a href="#contact">Contact</a>
+          </nav>
+          <a href="#contact" className="pill">{hero.ctaLabel || 'Get a Quote'}</a>
         </div>
-        <nav className="hidden items-center gap-8 text-sm md:flex" style={{ color: PALETTE.muted }}>
-          <a href="#services" className="hover:opacity-70">Services</a>
-          <a href="#gallery" className="hover:opacity-70">Gallery</a>
-          <a href="#process" className="hover:opacity-70">Process</a>
-          <a href="#contact" className="hover:opacity-70">Contact</a>
-        </nav>
-        <a href="#contact" className="rounded-full px-5 py-2 text-sm font-semibold text-white" style={{ background: a }}>
-          {hero.ctaLabel || 'Get a Quote'}
-        </a>
       </header>
 
-      {/* Hero */}
-      <section className="grid items-center gap-12 px-6 py-14 md:grid-cols-2 md:px-12 md:py-24">
-        <div>
-          <h1 className="font-serif text-[2.6rem] font-semibold leading-[1.05] tracking-tight md:text-6xl">{hero.heading}</h1>
-          <p className="mt-6 max-w-md text-lg leading-relaxed" style={{ color: PALETTE.muted }}>{hero.subheading}</p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a href="#contact" className="rounded-full px-7 py-3.5 text-base font-semibold text-white shadow-lg" style={{ background: a }}>
-              {hero.ctaLabel || 'Get a Free Quote'}
-            </a>
-            {b.phone && (
-              <a href={`tel:${b.phone}`} className="rounded-full border px-6 py-3.5 text-base font-medium" style={{ borderColor: PALETTE.border }}>
-                📞 {b.phone}
-              </a>
-            )}
-          </div>
-          {b.serviceArea && <p className="mt-6 text-sm" style={{ color: PALETTE.muted }}>Serving {b.serviceArea}</p>}
-        </div>
-        <div className="aspect-[4/3] overflow-hidden rounded-3xl" style={{ background: PALETTE.border }}>
-          {hero.image ? (
-            <img src={hero.image} alt={b.name} className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex h-full items-center justify-center text-sm" style={{ color: PALETTE.muted }}>Hero image</div>
-          )}
-        </div>
-      </section>
-
-      {/* Services */}
-      <section id="services" className="px-6 py-16 md:px-12 md:py-20" style={{ background: PALETTE.surface }}>
-        <h2 className="font-serif text-3xl font-semibold md:text-4xl">{services.heading}</h2>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {services.items.map((s, i) => (
-            <div key={i} className="rounded-2xl border p-7" style={{ borderColor: PALETTE.border, background: PALETTE.bg }}>
-              <div className="grid h-11 w-11 place-items-center rounded-full text-white" style={{ background: a }}>✦</div>
-              <h3 className="mt-5 font-serif text-xl font-semibold">{s.title}</h3>
-              <p className="mt-2 leading-relaxed" style={{ color: PALETTE.muted }}>{s.description}</p>
+      {/* hero */}
+      <div className="wrap">
+        <section className="hero">
+          <div>
+            <div className="label rise" style={{ animationDelay: '.05s' }}>
+              <span className="tick" />{b.serviceArea || b.tagline}
             </div>
+            <h1 className="rise" style={{ animationDelay: '.12s' }}>{hero.heading}</h1>
+            <p className="lead rise" style={{ animationDelay: '.2s' }}>{hero.subheading}</p>
+            <div className="cta-row rise" style={{ animationDelay: '.28s' }}>
+              <a href="#contact" className="btn">{hero.ctaLabel || 'Get a Free Quote'}</a>
+              {b.phone && <a href={`tel:${b.phone}`} className="btn-ghost">📞 {b.phone}</a>}
+            </div>
+          </div>
+          <div className="arch rise" style={{ animationDelay: '.18s' }}>
+            {hero.image && <img src={hero.image} alt={b.name} />}
+          </div>
+        </section>
+      </div>
+
+      {/* strip */}
+      {stripWords.length > 0 && (
+        <div className="strip">
+          {stripWords.map((w, i) => (
+            <span key={i} className="contents">
+              <span>{w}</span>{i < stripWords.length - 1 && <span className="dot">·</span>}
+            </span>
           ))}
         </div>
-      </section>
+      )}
 
-      {/* About */}
+      {/* services */}
+      <div className="wrap">
+        <section className="blk" id="services">
+          <div className="secnum reveal"><b>01</b><div className="sectitle">{services.heading}</div></div>
+          <div className="reveal">
+            {services.items.map((s, i) => (
+              <div className="srv" key={i}>
+                <div className="idx">{String(i + 1).padStart(2, '0')}</div>
+                <div className="nm">{s.title}</div>
+                <div className="ds">{s.description}</div>
+                <div className="ar">→</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* about */}
       {(about.heading || about.body) && (
-        <section className="grid items-center gap-12 px-6 py-20 md:grid-cols-2 md:px-12">
-          <div className="aspect-[4/3] overflow-hidden rounded-3xl order-2 md:order-1" style={{ background: PALETTE.border }}>
-            {about.image
-              ? <img src={about.image} alt={about.heading} className="h-full w-full object-cover" />
-              : <div className="flex h-full items-center justify-center text-sm" style={{ color: PALETTE.muted }}>Image</div>}
-          </div>
-          <div className="order-1 md:order-2">
-            <h2 className="font-serif text-3xl font-semibold md:text-4xl">{about.heading}</h2>
-            <p className="mt-5 text-lg leading-relaxed" style={{ color: PALETTE.muted }}>{about.body}</p>
-          </div>
-        </section>
+        <div className="wrap">
+          <section className="blk about">
+            <div className="arch2 reveal">{about.image && <img src={about.image} alt={about.heading} />}</div>
+            <div className="reveal">
+              <div className="label" style={{ marginBottom: 18 }}><span className="tick" />{about.heading}</div>
+              <p className="pull">{about.body}</p>
+            </div>
+          </section>
+        </div>
       )}
 
-      {/* Gallery */}
+      {/* gallery */}
       {gallery.images.length > 0 && (
-        <section id="gallery" className="px-6 py-16 md:px-12 md:py-20" style={{ background: PALETTE.surface }}>
-          <h2 className="font-serif text-3xl font-semibold md:text-4xl">{gallery.heading}</h2>
-          <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3">
-            {gallery.images.map((img, i) => (
-              <div key={i} className="aspect-square overflow-hidden rounded-2xl" style={{ background: PALETTE.border }}>
-                <img src={img.url} alt={img.alt || gallery.heading} className="h-full w-full object-cover" />
-              </div>
-            ))}
-          </div>
-        </section>
+        <div className="wrap">
+          <section className="blk" id="work">
+            <div className="secnum reveal"><b>02</b><div className="sectitle">{gallery.heading}</div></div>
+            <div className="gal reveal">
+              {gallery.images.map((img, i) => (
+                <div className="g" key={i}><img src={img.url} alt={img.alt || gallery.heading} /></div>
+              ))}
+            </div>
+          </section>
+        </div>
       )}
 
-      {/* Process */}
+      {/* process */}
       {process.steps.length > 0 && (
-        <section id="process" className="px-6 py-20 md:px-12">
-          <h2 className="font-serif text-3xl font-semibold md:text-4xl">{process.heading}</h2>
-          <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {process.steps.map((s, i) => (
-              <div key={i}>
-                <div className="grid h-11 w-11 place-items-center rounded-full font-semibold text-white" style={{ background: a }}>{i + 1}</div>
-                <h3 className="mt-4 font-serif text-lg font-semibold">{s.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed" style={{ color: PALETTE.muted }}>{s.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        <div className="wrap">
+          <section className="blk" id="process">
+            <div className="secnum reveal"><b>03</b><div className="sectitle">{process.heading}</div></div>
+            <div className="proc reveal">
+              {process.steps.map((s, i) => (
+                <div key={i}><div className="n">{i + 1}</div><h4>{s.title}</h4><p>{s.description}</p></div>
+              ))}
+            </div>
+          </section>
+        </div>
       )}
 
-      {/* Testimonials */}
+      {/* testimonials */}
       {testimonials.length > 0 && (
-        <section className="px-6 py-16 md:px-12 md:py-20" style={{ background: PALETTE.surface }}>
-          <h2 className="font-serif text-3xl font-semibold md:text-4xl">What our clients say</h2>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {testimonials.map((t) => (
-              <div key={t.id} className="rounded-2xl border p-7" style={{ borderColor: PALETTE.border, background: PALETTE.bg }}>
-                <Stars n={t.rating ?? 5} color={a} />
-                <p className="mt-4 leading-relaxed">&ldquo;{t.quote}&rdquo;</p>
-                <div className="mt-5 flex items-center gap-3">
-                  {t.avatar_url && <img src={t.avatar_url} alt={t.author_name} className="h-9 w-9 rounded-full object-cover" />}
-                  <div>
-                    <p className="text-sm font-semibold">{t.author_name}</p>
-                    {t.author_location && <p className="text-xs" style={{ color: PALETTE.muted }}>{t.author_location}</p>}
-                  </div>
+        <div className="wrap">
+          <section className="blk">
+            <div className="secnum reveal"><b>04</b><div className="sectitle">What clients say</div></div>
+            <div className="tg reveal">
+              {testimonials.map((t) => (
+                <div className="tcard" key={t.id}>
+                  <div className="stars">{'★'.repeat(t.rating ?? 5)}</div>
+                  <p className="q">&ldquo;{t.quote}&rdquo;</p>
+                  <div className="who">{t.author_name}{t.author_location ? ` — ${t.author_location}` : ''}</div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        </div>
       )}
 
-      {/* Contact */}
-      <section id="contact" className="px-6 py-20 text-center md:px-12">
-        <h2 className="font-serif text-3xl font-semibold md:text-5xl">{contact.heading}</h2>
-        <p className="mx-auto mt-4 max-w-md text-lg" style={{ color: PALETTE.muted }}>{contact.body}</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          {b.phone && <a href={`tel:${b.phone}`} className="rounded-full px-7 py-3.5 font-semibold text-white" style={{ background: a }}>📞 Call {b.phone}</a>}
-          {b.facebook && <a href={b.facebook} className="rounded-full border px-7 py-3.5 font-medium" style={{ borderColor: PALETTE.border }}>Message on Facebook</a>}
-        </div>
-        <div className="mt-7 text-sm" style={{ color: PALETTE.muted }}>
-          {b.address && <p>{b.address}</p>}
-          {b.hours && <p>{b.hours}</p>}
-        </div>
-      </section>
+      {/* contact */}
+      <div className="wrap">
+        <section className="contact" id="contact">
+          <div className="label" style={{ justifyContent: 'center', marginBottom: 18 }}><span className="tick" />Get in touch</div>
+          <h2>{contact.heading}</h2>
+          <div className="cta-row" style={{ justifyContent: 'center', marginTop: 32 }}>
+            {b.phone && <a href={`tel:${b.phone}`} className="btn">📞 Call {b.phone}</a>}
+            {b.facebook && <a href={b.facebook} className="btn-ghost">Message on Facebook</a>}
+          </div>
+          <div className="meta">
+            {b.serviceArea && <>Serving {b.serviceArea}</>}{b.hours && <> · {b.hours}</>}
+          </div>
+        </section>
+      </div>
 
-      {/* Footer */}
-      <footer className="border-t px-6 py-10 text-center text-sm md:px-12" style={{ borderColor: PALETTE.border, color: PALETTE.muted }}>
-        © {new Date().getFullYear()} {b.name}. {b.serviceArea && `Serving ${b.serviceArea}.`}
-      </footer>
+      <div className="wrap">
+        <footer className="ft">
+          <div className="brand" style={{ fontSize: '1.1rem' }}>{b.name}</div>
+          <div>© {new Date().getFullYear()} {b.name}. {b.serviceArea && `Serving ${b.serviceArea}.`}</div>
+        </footer>
+      </div>
     </div>
   )
 }
